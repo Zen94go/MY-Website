@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title> · CSE & Gaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #040810;
+      --bg2: #080f1c;
+      --panel: #0b1526;
+      --panel2: #0e1c32;
+      --cyan: #00f5ff;
+      --pink: #ff2d78;
+      --purple: #b44dff;
+      --gold: #ffd700;
+      --text: #c8d8f0;
+      --muted: #4a6080;
+      --border: rgba(0,245,255,0.18);
+      --glow-cyan: 0 0 20px rgba(0,245,255,0.5);
+      --glow-pink: 0 0 20px rgba(255,45,120,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed; width: 12px; height: 12px;
+      background: var(--cyan); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, background .2s;
+      box-shadow: 0 0 16px var(--cyan);
+    }
+    #cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1.5px solid var(--cyan); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .18s ease, width .2s, height .2s, opacity .2s;
+      opacity: .6;
+    }
+
+    /* ── CANVAS BG ── */
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: 0; opacity: .55;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(4,8,16,.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900; font-size: 1.1rem;
+      color: var(--cyan); letter-spacing: 3px;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .8rem; letter-spacing: 2px; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    /* ── WRAPPER ── */
+    main { position: relative; z-index: 1; }
+    section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding-top: 80px; max-width: 100%;
+      padding-left: 10vw; padding-right: 10vw;
+    }
+    .hero-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .75rem; letter-spacing: 4px; color: var(--cyan);
+      margin-bottom: 16px; opacity: 0;
+      animation: fadeUp .6s .2s forwards;
+    }
+    .hero-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900; line-height: 1;
+      color: #fff; margin-bottom: 8px;
+      opacity: 0; animation: fadeUp .6s .4s forwards;
+    }
+    .hero-name span { color: var(--cyan); position: relative; }
+    .hero-name span::after {
+      content: ''; position: absolute; bottom: 4px; left: 0; right: 0;
+      height: 4px; background: var(--pink);
+      box-shadow: var(--glow-pink);
+    }
+    .hero-subtitle {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.6rem);
+      color: var(--purple); letter-spacing: 4px;
+      margin-bottom: 28px;
+      opacity: 0; animation: fadeUp .6s .6s forwards;
+    }
+    .hero-desc {
+      max-width: 540px; color: var(--text); line-height: 1.7;
+      font-size: 1.05rem; margin-bottom: 40px;
+      opacity: 0; animation: fadeUp .6s .8s forwards;
+    }
+    .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; opacity: 0; animation: fadeUp .6s 1s forwards; }
+    .btn {
+      display: inline-block; padding: 12px 32px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .85rem; letter-spacing: 2px; text-transform: uppercase;
+      text-decoration: none; border-radius: 3px;
+      transition: all .25s; cursor: none;
+    }
+    .btn-primary {
+      background: var(--cyan); color: #000;
+      box-shadow: var(--glow-cyan);
+    }
+    .btn-primary:hover { background: var(--pink); box-shadow: var(--glow-pink); color: #fff; }
+    .btn-outline {
+      border: 1.5px solid var(--border); color: var(--cyan);
+      background: transparent;
+    }
+    .btn-outline:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan); }
+
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-family: 'Share Tech Mono', monospace; font-size: .65rem;
+      letter-spacing: 3px; color: var(--muted);
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll::after {
+      content: ''; width: 1px; height: 50px;
+      background: linear-gradient(var(--cyan), transparent);
+    }
+
+    /* ── SECTION HEADERS ── */
+    .sec-header { margin-bottom: 60px; }
+    .sec-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; color: var(--pink); letter-spacing: 4px;
+    }
+    .sec-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      font-weight: 700; color: #fff; margin: 8px 0 16px;
+      line-height: 1.1;
+    }
+    .sec-title span { color: var(--cyan); }
+    .sec-line {
+      width: 60px; height: 3px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      border-radius: 2px;
+    }
+
+    /* ── REVEAL ANIMATION ── */
+    .reveal { opacity: 0; transform: translateY(36px); transition: all .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── GAMING ── */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .game-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 24px;
+      position: relative; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .game-card::before {
+      content: ''; position: absolute;
+      inset: 0; background: linear-gradient(135deg, rgba(0,245,255,.04), transparent);
+      pointer-events: none;
+    }
+    .game-card:hover { transform: translateY(-4px); box-shadow: var(--glow-cyan); }
+    .game-genre {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .65rem; letter-spacing: 3px;
+      color: var(--pink); margin-bottom: 10px;
+    }
+    .game-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: #fff; margin-bottom: 8px;
+    }
+    .game-stats { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem; color: var(--cyan); font-weight: 700;
+    }
+    .stat-label {
+      font-size: .7rem; color: var(--muted);
+      font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+    }
+    .game-rank {
+      position: absolute; top: 16px; right: 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .7rem; padding: 4px 10px;
+      background: rgba(255,215,0,.12);
+      border: 1px solid rgba(255,215,0,.3);
+      border-radius: 20px; color: var(--gold);
+    }
+    .game-bar-wrap { margin-top: 14px; }
+    .game-bar-label { font-size: .75rem; color: var(--muted); margin-bottom: 5px; display: flex; justify-content: space-between; }
+    .game-bar { height: 4px; background: rgba(255,255,255,.07); border-radius: 4px; overflow: hidden; }
+    .game-bar-fill {
+      height: 100%; background: linear-gradient(90deg, var(--cyan), var(--purple));
+      border-radius: 4px; width: 0;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1) .3s;
+    }
+    .game-emoji { font-size: 2rem; margin-bottom: 12px; }
+
+    /* ── TECH SKILLS ── */
+    .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+    @media(max-width:768px){ .skills-layout { grid-template-columns: 1fr; } }
+    .skill-group-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: .85rem; color: var(--pink); letter-spacing: 3px;
+      margin-bottom: 24px;
+    }
+    .skill-item { margin-bottom: 22px; }
+    .skill-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .skill-name { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; color: #fff; }
+    .skill-pct { font-family: 'Share Tech Mono', monospace; font-size: .75rem; color: var(--cyan); }
+    .skill-track { height: 6px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+    .skill-fill {
+      height: 100%; border-radius: 4px; width: 0;
+      transition: width 1.4s cubic-bezier(.4,0,.2,1) .2s;
+    }
+    .fill-cyan { background: linear-gradient(90deg, var(--cyan), #0099ff); }
+    .fill-pink { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+    .fill-gold { background: linear-gradient(90deg, var(--gold), #ff9d00); }
+
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .tech-tag {
+      padding: 6px 14px; border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .72rem; letter-spacing: 1px;
+      border: 1px solid var(--border);
+      color: var(--cyan); background: rgba(0,245,255,.04);
+      transition: all .2s;
+    }
+    .tech-tag:hover { background: rgba(0,245,255,.12); box-shadow: var(--glow-cyan); }
+
+    /* ── MUSIC ── */
+    .music-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .music-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      cursor: none;
+    }
+    .music-link { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+    /* YouTube player controls */
+    #ytplayer { width: 0; height: 0; overflow: hidden; position: absolute; }
+    .player-controls {
+      position: fixed; right: 20px; bottom: 20px; z-index: 2000;
+      background: var(--panel); border: 1px solid var(--border);
+      padding: 8px 10px; border-radius: 28px; display: flex; gap: 8px; align-items: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,.6);
+    }
+    .player-btn { background: transparent; border: none; color: var(--cyan); font-family: 'Share Tech Mono', monospace; font-size: .85rem; cursor: pointer; display:flex; align-items:center; justify-content:center; width:40px; height:36px; }
+    .player-btn:hover { color: var(--pink); }
+    .volume-range { width:140px; appearance: none; height:6px; background: rgba(255,255,255,.06); border-radius:6px; }
+    .volume-range::-webkit-slider-thumb { -webkit-appearance: none; width:14px; height:14px; background:var(--cyan); border-radius:50%; box-shadow: 0 0 8px rgba(0,245,255,.3); }
+    .volume-range::-moz-range-thumb { width:14px; height:14px; background:var(--cyan); border-radius:50%; }
+    .music-card:hover { transform: scale(1.04); box-shadow: 0 0 30px rgba(180,77,255,.35); }
+    .music-cover {
+      width: 100%; aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      position: relative; overflow: hidden;
+    }
+    .music-cover::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(180,77,255,.2), rgba(0,245,255,.1));
+    }
+    .music-info { padding: 14px 16px; }
+    .music-title { font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #fff; font-size: 1rem; }
+    .music-artist { font-size: .8rem; color: var(--muted); margin-top: 3px; }
+    .music-genre {
+      display: inline-block; margin-top: 10px; padding: 3px 10px;
+      background: rgba(180,77,255,.15); border: 1px solid rgba(180,77,255,.3);
+      border-radius: 20px; font-size: .65rem; letter-spacing: 2px;
+      font-family: 'Share Tech Mono', monospace; color: var(--purple);
+    }
+    .vibes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 40px; }
+    .vibe-pill {
+      padding: 8px 20px; border-radius: 40px; font-size: .8rem;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      border: 1.5px solid;
+    }
+    .vibe-1 { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,.06); }
+    .vibe-2 { border-color: var(--pink); color: var(--pink); background: rgba(255,45,120,.06); }
+    .vibe-3 { border-color: var(--purple); color: var(--purple); background: rgba(180,77,255,.06); }
+    .vibe-4 { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,.06); }
+
+    /* ── GALLERY ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media(max-width:600px){ .gallery-grid { grid-template-columns: 1fr 1fr; } }
+    .gallery-item {
+      aspect-ratio: 4/3; border-radius: 8px; overflow: hidden;
+      position: relative; cursor: none;
+      border: 1px solid var(--border);
+    }
+    .gallery-item:first-child { grid-column: span 2; grid-row: span 2; aspect-ratio: unset; }
+    .gallery-thumb {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; transition: transform .4s ease;
+    }
+    .gallery-img {
+      width: 100%; height: 100%; display: block; object-fit: cover;
+    }
+    .gallery-item:hover .gallery-thumb { transform: scale(1.08); }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 50%);
+      opacity: 0; transition: opacity .3s;
+      display: flex; align-items: flex-end; padding: 16px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-caption {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; color: var(--cyan); letter-spacing: 2px;
+    }
+    .gallery-bg-1 { background: linear-gradient(135deg, #0a1628, #1a0a2e); }
+    .gallery-bg-2 { background: linear-gradient(135deg, #0a1f0a, #001a2e); }
+    .gallery-bg-3 { background: linear-gradient(135deg, #2e0a0a, #1a001a); }
+    .gallery-bg-4 { background: linear-gradient(135deg, #1a1a0a, #0a1f1f); }
+    .gallery-bg-5 { background: linear-gradient(135deg, #0a001a, #1a0a28); }
+    .gallery-bg-6 { background: linear-gradient(135deg, #001a1a, #0a2814); }
+    /* Replace emojis with your actual images using:  */
+    /* .gallery-thumb { background-image: url('your-image.jpg'); background-size:cover; background-position:center; } */
+
+    /* ── ANIME ── */
+    .anime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .anime-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      cursor: none;
+    }
+    .anime-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(180,77,255,.25); }
+    .anime-poster {
+      width: 100%; aspect-ratio: 2/3;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem; position: relative;
+    }
+    .anime-status {
+      position: absolute; top: 8px; right: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .6rem; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px;
+    }
+    .status-done { background: rgba(0,245,255,.15); color: var(--cyan); border: 1px solid var(--cyan); }
+    .status-watch { background: rgba(255,215,0,.15); color: var(--gold); border: 1px solid var(--gold); }
+    .status-drop { background: rgba(255,45,120,.15); color: var(--pink); border: 1px solid var(--pink); }
+    .anime-info { padding: 12px 14px; }
+    .anime-title { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .95rem; color: #fff; line-height: 1.3; }
+    .anime-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .anime-ep { font-size: .72rem; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+    .anime-stars { color: var(--gold); font-size: .8rem; }
+    .anime-genre-tag {
+      margin-top: 8px; font-size: .62rem;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--purple); letter-spacing: 1px;
+    }
+    /* anime poster backgrounds */
+    .ap-1 { background: linear-gradient(160deg, #0a0a2e 0%, #200a3c 100%); }
+    .ap-2 { background: linear-gradient(160deg, #1a0a0a 0%, #2e0a14 100%); }
+    .ap-3 { background: linear-gradient(160deg, #0a1a0a 0%, #001a28 100%); }
+    .ap-4 { background: linear-gradient(160deg, #1a1400 0%, #2e1f00 100%); }
+    .ap-5 { background: linear-gradient(160deg, #000a1a 0%, #0a0028 100%); }
+    .ap-6 { background: linear-gradient(160deg, #1a001a 0%, #0a0a2e 100%); }
+    .ap-7 { background: linear-gradient(160deg, #0a1a14 0%, #001428 100%); }
+    .ap-8 { background: linear-gradient(160deg, #140a1a 0%, #1a0028 100%); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900; color: var(--cyan); font-size: 1rem; letter-spacing: 3px;
+    }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .72rem; color: var(--muted); text-decoration: none;
+      letter-spacing: 1px; transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--cyan); }
+    .footer-copy { font-size: .75rem; color: var(--muted); width: 100%; text-align: center; margin-top: 8px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(10px); }
+    }
+    @keyframes glitch {
+      0%   { clip-path: inset(40% 0 61% 0); transform: translate(-2px,0); }
+      20%  { clip-path: inset(92% 0 1% 0);  transform: translate(2px,0); }
+      40%  { clip-path: inset(43% 0 1% 0);  transform: translate(0,0); }
+      60%  { clip-path: inset(25% 0 58% 0); transform: translate(3px,0); }
+      80%  { clip-path: inset(54% 0 7% 0);  transform: translate(-3px,0); }
+      100% { clip-path: inset(58% 0 43% 0); transform: translate(0,0); }
+    }
+    .glitch-wrap { position: relative; display: inline-block; }
+    .glitch-wrap::before,
+    .glitch-wrap::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0;
+      font-family: 'Orbitron', sans-serif;
+      font-size: inherit; font-weight: 900;
+      width: 100%; color: #fff;
+    }
+    .glitch-wrap::before {
+      color: var(--pink); animation: glitch 2.5s infinite steps(1);
+      clip-path: inset(40% 0 61% 0);
+    }
+    .glitch-wrap::after {
+      color: var(--cyan); animation: glitch 2.5s infinite steps(1) .1s;
+      clip-path: inset(54% 0 7% 0);
+    }
+
+    @keyframes scanline {
+      from { background-position: 0 0; }
+      to   { background-position: 0 100vh; }
+    }
+    .scanlines {
+      position: fixed; inset: 0; pointer-events: none; z-index: 5;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,.04) 3px, rgba(0,0,0,.04) 4px);
+      opacity: .5;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      section { padding: 80px 20px; }
+      #hero { padding-left: 20px; padding-right: 20px; }
+      footer { padding: 32px 20px; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-item:first-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="scanlines"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="#">YN//</a>
+  <ul class="nav-links">
+    <li><a href="#gaming">Gaming</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#anime">Anime</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <p class="hero-tag">// student · GAMER · OTAKU</p>
+    <h1 class="hero-name">
+      <span class="glitch-wrap" data-text="MD">MD</span>&nbsp;Fahad
+    </h1>
+    <p class="hero-subtitle">PLAYER ONE · Explorer · ANIME NERD</p>
+    <p class="hero-desc">
+      student by day, gamer and anime enthusiast by night.
+      I build things, break things, and respawn. Currently grinding ranked
+      while shipping side projects.
+    </p>
+    <div class="hero-btns">
+      <a href="#gaming" class="btn btn-primary">See My Loadout</a>
+      <a href="#skills" class="btn btn-outline">Tech Stack</a>
+      <a href="https://github.com/yourusername" target="_blank" class="btn btn-outline">GitHub</a>
+    </div>
+    <div class="hero-scroll">SCROLL</div>
+  </section>
+
+  <!-- ── GAMING ── -->
+  <section id="gaming">
+    <div class="sec-header reveal">
+      <p class="sec-num">// 01</p>
+      <h2 class="sec-title">Gaming <span>Arsenal</span></h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="game-grid">
+
+      <div class="game-card reveal">
+        <div class="game-emoji">🎯</div>
+        <p class="game-genre">FPS · TACTICAL</p>
+        <h3 class="game-title">Valorant</h3>
+        <span class="game-rank">Diamond II</span>
+        <p style="font-size:.88rem;color:var(--muted);margin-top:6px;">Main: Omen &amp; Omen · 62% Win Rate</p>
+        <div class="game-stats">
+          <div class="stat"><div class="stat-val">1.2</div><div class="stat-label">K/D</div></div>
+          <div class="stat"><div class="stat-val">400h</div><div class="stat-label">Playtime</div></div>
+          <div class="stat"><div class="stat-val">21%</div><div class="stat-label">HS%</div></div>
+        </div>
+        <div class="game-bar-wrap">
+          <div class="game-bar-label"><span>Aim</span><span>65%</span></div>
+          <div class="game-bar"><div class="game-bar-fill" style="--w:65%"></div></div>
+        </div>
+      </div>
+
+      <div class="game-card reveal">
+        <div class="game-emoji">🧊</div>
+        <p class="game-genre">Survival</p>
+        <h3 class="game-title">Minecraft</h3>
+        <span class="game-rank">Survival Pro</span>
+        <p style="font-size:.88rem;color:var(--muted);margin-top:6px;">Redstone Engineer · Builder · Speedrunner</p>
+        <div class="game-stats">
+          <div class="stat"><div class="stat-val">1.2k+</div><div class="stat-label">Hours</div></div>
+          <div class="stat"><div class="stat-val">8</div><div class="stat-label">Worlds</div></div>
+          <div class="stat"><div class="stat-val">A</div><div class="stat-label">Tier</div></div>
+        </div>
+        <div class="game-bar-wrap">
+          <div class="game-bar-label"><span>Creativity</span><span>83%</span></div>
+          <div class="game-bar"><div class="game-bar-fill" style="--w:83%"></div></div>
+        </div>
+      </div>
+
+      <div class="game-card reveal">
+        <div class="game-emoji">⚔️</div>
+        <p class="game-genre">BATTLE ROYALE</p>
+        <h3 class="game-title">Free Fire</h3>
+        <span class="game-rank">Master</span>
+        <p style="font-size:.88rem;color:var(--muted);margin-top:6px;">Mid Lane · Assassin Specialist</p>
+        <div class="game-stats">
+          <div class="stat"><div class="stat-val">2.4</div><div class="stat-label">KDA</div></div>
+          <div class="stat"><div class="stat-val">3500h</div><div class="stat-label">Playtime</div></div>
+        </div>
+        <div class="game-bar-wrap">
+          <div class="game-bar-label"><span>Game Sense</span><span>94%</span></div>
+          <div class="game-bar"><div class="game-bar-fill" style="--w:94%"></div></div>
+        </div>
+      </div>
+
+      <div class="game-card reveal">
+        <div class="game-emoji">🕹️</div>
+        <p class="game-genre">RPG · OPEN WORLD</p>
+        <h3 class="game-title">Grand Theft Auto V</h3>
+        <span class="game-rank">Gang Leader</span>
+        <p style="font-size:.88rem;color:var(--muted);margin-top:6px;">Strength Build · 100% Completed</p>
+        <div class="game-stats">
+          <div class="stat"><div class="stat-val">250h</div><div class="stat-label">Playtime</div></div>
+          <div class="stat"><div class="stat-val">3</div><div class="stat-label">Playthroughs</div></div>
+        </div>
+        <div class="game-bar-wrap">
+          <div class="game-bar-label"><span>Patience</span><span>87%</span></div>
+          <div class="game-bar"><div class="game-bar-fill" style="--w:87%"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TECH SKILLS ── -->
+  <section id="skills">
+    <div class="sec-header reveal">
+      <p class="sec-num">// 02</p>
+      <h2 class="sec-title">Tech <span>Skills</span></h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="skills-layout">
+      <div class="reveal">
+        <p class="skill-group-title">// LANGUAGES</p>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">Python</span><span class="skill-pct">45%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-cyan" data-w="45"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">HTML</span><span class="skill-pct">60%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-cyan" data-w="60"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">JavaScript</span><span class="skill-pct">15%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-pink" data-w="15"></div></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <p class="skill-group-title">// FRAMEWORKS &amp; TOOLS</p>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">Linux</span><span class="skill-pct">70%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-cyan" data-w="70"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">GitHub</span><span class="skill-pct">65%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-cyan" data-w="65"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-top"><span class="skill-name">Git &amp; Node.js</span><span class="skill-pct">0%</span></div>
+          <div class="skill-track"><div class="skill-fill fill-pink" data-w="0"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:48px;">
+      <p class="skill-group-title">// TOOLS &amp; TECHNOLOGIES</p>
+      <div class="tech-tags">
+        <span class="tech-tag">VS Code</span>
+        <span class="tech-tag">Docker</span>
+        <span class="tech-tag">Firebase</span>
+        <span class="tech-tag">MongoDB</span>
+        <span class="tech-tag">PostgreSQL</span>
+        <span class="tech-tag">REST APIs</span>
+        <span class="tech-tag">NumPy</span>
+        <span class="tech-tag">Pandas</span>
+        <span class="tech-tag">TensorFlow</span>
+        <span class="tech-tag">Tailwind CSS</span>
+        <span class="tech-tag">Figma</span>
+        <span class="tech-tag">Postman</span>
+        <span class="tech-tag">Bash</span>
+        <span class="tech-tag">AWS Basics</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MUSIC ── -->
+  <section id="music">
+    <div class="sec-header reveal">
+      <p class="sec-num">// 03</p>
+      <h2 class="sec-title">Music <span>Taste</span></h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="music-grid">
+      <a class="music-link" href="https://youtu.be/LaBDmuB6OyE?si=fLhRAAqQOtv7Gv2T" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#0a0a2e,#2e0a3e)">🎧</div>
+          <div class="music-info">
+            <p class="music-title">Kal Theke Nai</p>
+            <p class="music-artist">The Weeknd</p>
+            <span class="music-genre">POP · SYNTHWAVE</span>
+          </div>
+        </div>
+      </a>
+      <a class="music-link" href="https://youtu.be/XEjLoHdbVeE?si=jI1Ujb0Iv6PSa0qz" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#0a1a0a,#001420)">🎸</div>
+          <div class="music-info">
+            <p class="music-title">Gimme! Gimme! Gimme!</p>
+            <p class="music-artist">ABBA</p>
+            <span class="music-genre">DISCO · CLASSIC</span>
+          </div>
+        </div>
+      </a>
+      <a class="music-link" href="https://youtu.be/fPO76Jlnz6c?si=qoLTbX2PL5hLL10y" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#1a0a0a,#2e0014)">🥁</div>
+          <div class="music-info">
+            <p class="music-title">Gangsta's Paradise</p>
+            <p class="music-artist">Yuki Kajiura</p>
+            <span class="music-genre">ANIME · ORCHESTRAL</span>
+          </div>
+        </div>
+      </a>
+      <a class="music-link" href="https://youtu.be/xu7CB0hiFNw?si=gfGJVAYx19axDim1" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#001428,#0a0028)">🎹</div>
+          <div class="music-info">
+            <p class="music-title">Unravel</p>
+            <p class="music-artist">I'll Do It Tomorrow</p>
+            <span class="music-genre">J-ROCK · ANIME</span>
+          </div>
+        </div>
+      </a>
+      <a class="music-link" href="https://youtu.be/qP-7GNoDJ5c?si=Y-sgS0_BmHHEKogu" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#14000a,#280a1e)">🎵</div>
+          <div class="music-info">
+            <p class="music-title">Wellerman</p>
+            <p class="music-artist">ChilledCow · Nujabes</p>
+            <span class="music-genre">LO-FI · CHILL</span>
+          </div>
+        </div>
+      </a>
+      <a class="music-link" href="https://youtu.be/dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer">
+        <div class="music-card reveal">
+          <div class="music-cover" style="background:linear-gradient(135deg,#001a14,#001428)">🎤</div>
+          <div class="music-info">
+            <p class="music-title">Never Gonna Give You Up</p>
+            <p class="music-artist">Justin Bieber</p>
+            <span class="music-genre">POP · R&amp;B</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="reveal" style="margin-top:40px;">
+      <p class="skill-group-title" style="margin-bottom:16px;">// CURRENT VIBES</p>
+      <div class="vibes">
+        <span class="vibe-pill vibe-1">Late Night Coding</span>
+        <span class="vibe-pill vibe-2">Post-Match Hype</span>
+        <span class="vibe-pill vibe-3">Anime OSTs on Repeat</span>
+        <span class="vibe-pill vibe-4">Lo-fi Grind Mode</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GALLERY ── -->
+  <section id="gallery">
+    <div class="sec-header reveal">
+      <p class="sec-num">// 04</p>
+      <h2 class="sec-title">Screenshots &amp; <span>Favorites</span></h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item gallery-bg-1 reveal">
+        <div class="gallery-thumb"><img src="image/image.1.png" alt="Diamond rank" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">DIAMOND RANK ACHIEVED</p></div>
+      </div>
+      <div class="gallery-item gallery-bg-2 reveal">
+        <div class="gallery-thumb"><img src="image/image.2.png" alt="Minecraft base" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">MINECRAFT BASE V3</p></div>
+      </div>
+      <div class="gallery-item gallery-bg-3 reveal">
+        <div class="gallery-thumb"><img src="image/image.3.png" alt="Ace highlight" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">ACE ROUND HIGHLIGHT</p></div>
+      </div>
+      <div class="gallery-item gallery-bg-4 reveal">
+        <div class="gallery-thumb"><img src="image/image.4.png" alt="Wallpaper" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">FAVORITE WALLPAPER</p></div>
+      </div>
+      <div class="gallery-item gallery-bg-5 reveal">
+        <div class="gallery-thumb"><img src="image/image.5.png" alt="My setup" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">MY SETUP</p></div>
+      </div>
+      <div class="gallery-item gallery-bg-6 reveal">
+        <div class="gallery-thumb"><img src="image/image.6.png" alt="Anime art" class="gallery-img"/></div>
+        <div class="gallery-overlay"><p class="gallery-caption">ANIME ART COLLECTION</p></div>
+      </div>
+    </div>
+    <p style="margin-top:24px;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted);">
+      // Replace emoji placeholders with &lt;img&gt; tags pointing to your actual screenshots &amp; images
+    </p>
+  </section>
+
+  <!-- ── ANIME ── -->
+  <section id="anime">
+    <div class="sec-header reveal">
+      <p class="sec-num">// 05</p>
+      <h2 class="sec-title">Anime <span>List</span></h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-1">🗡️<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Attack on Titan</p>
+          <div class="anime-meta">
+            <span class="anime-ep">87 eps</span>
+            <span class="anime-stars">★★☆☆☆</span>
+          </div>
+          <p class="anime-genre-tag">ACTION · DARK FANTASY</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-2">🔥<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Demon Slayer</p>
+          <div class="anime-meta">
+            <span class="anime-ep">55+ eps</span>
+            <span class="anime-stars">★★★☆☆</span>
+          </div>
+          <p class="anime-genre-tag">ACTION · SUPERNATURAL</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-3">⚡<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">My Hero Academia</p>
+          <div class="anime-meta">
+            <span class="anime-ep">170+ eps</span>
+            <span class="anime-stars">★★★★☆</span>
+          </div>
+          <p class="anime-genre-tag">SUPERHERO · SCHOOL</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-4">🃏<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Death Note</p>
+          <div class="anime-meta">
+            <span class="anime-ep">37 eps</span>
+            <span class="anime-stars">★★★★★</span>
+          </div>
+          <p class="anime-genre-tag">THRILLER · PSYCHOLOGICAL</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-5">🌀<span class="anime-status status-watch">WATCHING</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Jujutsu Kaisen</p>
+          <div class="anime-meta">
+            <span class="anime-ep">24+ eps</span>
+            <span class="anime-stars">★★★★★</span>
+          </div>
+          <p class="anime-genre-tag">ACTION · DARK</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-6">🥷<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Naruto</p>
+          <div class="anime-meta">
+            <span class="anime-ep">1013 eps</span>
+            <span class="anime-stars">★★★★★</span>
+          </div>
+          <p class="anime-genre-tag">FANTASY · ADVENTURE</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-7">⚔️<span class="anime-status status-done">DONE</span></div>
+        <div class="anime-info">
+          <p class="anime-title">Bleach</p>
+          <div class="anime-meta">
+            <span class="anime-ep">400+ eps</span>
+            <span class="anime-stars">★★★★☆</span>
+          </div>
+          <p class="anime-genre-tag">ISEKAI · GAME</p>
+        </div>
+      </div>
+
+      <div class="anime-card reveal">
+        <div class="anime-poster ap-8">🏴‍☠️<span class="anime-status status-watch">WATCHING</span></div>
+        <div class="anime-info">
+          <p class="anime-title">One Piece</p>
+          <div class="anime-meta">
+            <span class="anime-ep">1155+ eps</span>
+            <span class="anime-stars">★★★★★</span>
+          </div>
+          <p class="anime-genre-tag">HISTORICAL · DRAMA</p>
+        </div>
+      </div>
+
+      <a href="https://myanimelist.net/animelist/MD_Fahad" target="_blank">
+        <div class="anime-card reveal">
+          <div class="anime-poster ap-9">
+            🔗<span class="anime-status status-done">DONE</span>
+          </div>
+          <div class="anime-info">
+            <p class="anime-title">See More</p>
+            <div class="anime-meta">
+              <span class="anime-ep">2500+ eps</span>
+              <span class="anime-stars">★★★★★</span>
+            </div>
+            <p class="anime-genre-tag">ISEKAI · GAME</p>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-brand">YN//</span>
+  <div class="footer-links">
+    <a href="https://github.com/yourusername" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
+    <a href="mailto:you@email.com">Email</a>
+  </div>
+  <p class="footer-copy">// Built with HTML · CSS · Vanilla JS · Deployed on Netlify</p>
+</footer>
+
+<script>
+  /* ── CURSOR ── */
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.game-card,.music-card,.anime-card,.gallery-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width = '60px'; ring.style.height = '60px';
+      ring.style.borderColor = 'var(--pink)';
+      cur.style.background = 'var(--pink)';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '36px'; ring.style.height = '36px';
+      ring.style.borderColor = 'var(--cyan)';
+      cur.style.background = 'var(--cyan)';
+    });
+  });
+
+  /* ── CANVAS GRID BG ── */
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, dots = [];
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    dots = [];
+    for (let i = 0; i < 80; i++) {
+      dots.push({ x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
+        r: Math.random()*1.5+.5 });
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function drawGrid() {
+    ctx.clearRect(0,0,W,H);
+    const size = 60;
+    ctx.strokeStyle = 'rgba(0,245,255,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += size) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += size) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+    dots.forEach(d => {
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
+      if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(0,245,255,0.55)';
+      ctx.fill();
+    });
+    dots.forEach((d,i) => {
+      dots.slice(i+1).forEach(d2 => {
+        const dist = Math.hypot(d.x-d2.x, d.y-d2.y);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(d.x, d.y); ctx.lineTo(d2.x, d2.y);
+          ctx.strokeStyle = `rgba(0,245,255,${0.12*(1-dist/120)})`;
+          ctx.lineWidth = .7;
+          ctx.stroke();
+        }
+      });
+    });
+    requestAnimationFrame(drawGrid);
+  }
+  drawGrid();
+
+  /* ── SCROLL REVEAL ── */
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        /* animate skill bars */
+        e.target.querySelectorAll('.skill-fill').forEach(bar => {
+          bar.style.width = bar.dataset.w + '%';
+        });
+        /* animate game bars */
+        e.target.querySelectorAll('.game-bar-fill').forEach(bar => {
+          bar.style.width = bar.style.getPropertyValue('--w') || '0%';
+          bar.style.width = getComputedStyle(bar).getPropertyValue('--w');
+        });
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => observer.observe(r));
+
+  /* fix game-bar-fill CSS variable animation */
+  document.querySelectorAll('.game-bar-fill').forEach(bar => {
+    const w = bar.style.cssText.match(/--w:\s*([\d]+%)/)?.[1] || '0%';
+    bar.setAttribute('data-gw', w);
+  });
+
+  /* ── STAGGER child cards ── */
+  ['game-grid','music-grid','anime-grid'].forEach(cls => {
+    document.querySelectorAll(`.${cls} .reveal`).forEach((el, i) => {
+      el.style.transitionDelay = (i * 80) + 'ms';
+    });
+  });
+</script>
+<!-- Hidden YouTube container (fallback) + local audio + controls -->
+<div id="ytplayer"></div>
+<audio id="bgAudio" src="BgSong/Coolio - Gangstas Paradise (feat. L.V.) [Official Music Video].mp3" loop></audio>
+<div class="player-controls" aria-label="music player controls">
+  <input id="volumeRange" class="volume-range" type="range" min="0" max="100" value="50" aria-label="Volume (0 = pause)" />
+  <button id="muteToggle" class="player-btn" aria-label="Mute/Unmute">🔊</button>
+</div>
+<script>
+  (function(){
+    const audioEl = document.getElementById('bgAudio');
+    const volEl = document.getElementById('volumeRange');
+    const muteBtn = document.getElementById('muteToggle');
+    let ytPlayer = null;
+    let audioPlayer = audioEl || null;
+
+    function updateButtons(){
+      if (audioPlayer) {
+        muteBtn.textContent = audioPlayer.muted ? '🔇' : '🔊';
+        try { volEl.value = Math.round((audioPlayer.volume || 0) * 100); } catch(e){}
+        return;
+      }
+      if (ytPlayer) {
+        muteBtn.textContent = ytPlayer.isMuted() ? '🔇' : '🔊';
+        try { volEl.value = ytPlayer.getVolume(); } catch(e){}
+      }
+    }
+
+    if (audioPlayer) {
+      // initialize audio element
+      try { audioPlayer.volume = (parseInt(volEl.value,10) || 50) / 100; } catch(e){}
+      // attempt autoplay muted (improves autoplay success in browsers)
+      audioPlayer.muted = true;
+      audioPlayer.play().catch(()=>{});
+      // if slider is > 0, unmute
+      if (parseInt(volEl.value,10) > 0) audioPlayer.muted = false;
+      updateButtons();
+
+      muteBtn.addEventListener('click', () => {
+        audioPlayer.muted = !audioPlayer.muted;
+        updateButtons();
+      });
+
+      volEl.addEventListener('input', (e) => {
+        const v = parseInt(e.target.value || '50', 10);
+        try { audioPlayer.volume = v / 100; } catch (err) {}
+        if (v === 0) {
+          try { audioPlayer.pause(); } catch (err) {}
+          try { audioPlayer.muted = true; } catch (err) {}
+        } else {
+          try { if (audioPlayer.paused) audioPlayer.play().catch(()=>{}); } catch (err) {}
+          try { if (audioPlayer.muted) audioPlayer.muted = false; } catch (err) {}
+        }
+        setTimeout(updateButtons, 50);
+      });
+
+      // keep UI in sync if user interacts with native audio
+      audioPlayer.addEventListener('play', updateButtons);
+      audioPlayer.addEventListener('pause', updateButtons);
+      audioPlayer.addEventListener('volumechange', updateButtons);
+
+    } else {
+      // fallback to YouTube player when local audio not present
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(tag);
+
+      window.onYouTubeIframeAPIReady = function() {
+        ytPlayer = new YT.Player('ytplayer', {
+          height: '0', width: '0',
+          videoId: 'xu7CB0hiFNw',
+          playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, playsinline: 1 },
+          events: {
+            'onReady': (e) => {
+              try {
+                e.target.mute();
+                try { e.target.setVolume(parseInt(volEl.value,10) || 50); } catch (err) {}
+                e.target.playVideo();
+              } catch (err) {}
+              setTimeout(updateButtons, 200);
+            },
+            'onStateChange': () => { updateButtons(); }
+          }
+        });
+      };
+
+      muteBtn.addEventListener('click', () => {
+        if (!ytPlayer) return;
+        if (ytPlayer.isMuted()) ytPlayer.unMute(); else ytPlayer.mute();
+        setTimeout(updateButtons, 50);
+      });
+
+      volEl.addEventListener('input', (e) => {
+        if (!ytPlayer) return;
+        const v = parseInt(e.target.value || '50', 10);
+        try { ytPlayer.setVolume(v); } catch (err) {}
+        if (v === 0) {
+          try { ytPlayer.pauseVideo(); } catch (err) {}
+          try { ytPlayer.mute(); } catch (err) {}
+        } else {
+          try { if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) ytPlayer.playVideo(); } catch (err) {}
+          try { if (ytPlayer.isMuted()) ytPlayer.unMute(); } catch (err) {}
+        }
+        setTimeout(updateButtons, 50);
+      });
+    }
+  })();
+</script>
+</body>
+</html>
